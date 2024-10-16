@@ -36,7 +36,6 @@
         .upgrade {
             margin: 10px 0;
         }
-
         /* Star styles */
         .star {
             position: absolute;
@@ -145,6 +144,8 @@
 
             money = 0;
             totalIncrement = 0;
+            rebirthCount = 0;
+            superRebirthCount = 0;
             startEarningMoney();
             initializeUpgrades();
             updateRebirthButtonVisibility();
@@ -208,8 +209,9 @@
                 upgrade.purchased += 1;
                 totalIncrement += upgrade.increment;
 
-                // Reset the cost back to the original price for upgrades
-                upgrade.cost = upgrade.originalCost;
+                // Increase the cost for the next purchase
+                upgrade.cost = Math.floor(upgrade.cost * 1.5);
+                
                 updateMoneyDisplay();
                 renderUpgrades();
             } else {
@@ -287,6 +289,7 @@
             totalIncrement = 0;
             upgrades.forEach(upgrade => {
                 upgrade.increment *= 2; // Doubling increment on rebirth
+                upgrade.cost = upgrade.originalCost; // Resetting cost to original on rebirth
             });
             upgradeList.innerHTML = '';
             updateMoneyDisplay();
@@ -306,6 +309,7 @@
             totalIncrement = 0;
             upgrades.forEach(upgrade => {
                 upgrade.increment *= 10; // Increase increment significantly on super rebirth
+                upgrade.cost = upgrade.originalCost; // Resetting cost to original on super rebirth
             });
             upgradeList.innerHTML = ''; 
             updateMoneyDisplay();
