@@ -67,7 +67,7 @@
     <h1 id="gameTitle">Money Incremental Game</h1>
     <div id="moneyDisplay">$0.00</div>
     <div id="rebirthCounter">Rebirths: 0</div>
-    <div id="superRebirthCounter" style="display: none;">Super Rebirths: 0</div>
+    <div id="superRebirthCounter">Super Rebirths: 0</div> <!-- Added Super Rebirth Counter -->
     <button id="startButton">Start Game</button>
     <button id="upgradesButton">Toggle Upgrades</button>
     <button id="rebirthButton" style="display: none;">Rebirth</button>
@@ -84,7 +84,7 @@
         let earningInterval;
         let totalIncrement = 0;
         let rebirthCount = 0;
-        let superRebirthCount = 0;
+        let superRebirthCount = 0; // Counter for super rebirths
         let baseEarningRate = 1;
         let upgrades = [];
         let rebirthMultiplier = 1;
@@ -93,7 +93,7 @@
 
         const moneyDisplay = document.getElementById("moneyDisplay");
         const rebirthCounterDisplay = document.getElementById("rebirthCounter");
-        const superRebirthCounterDisplay = document.getElementById("superRebirthCounter");
+        const superRebirthCounterDisplay = document.getElementById("superRebirthCounter"); // Reference for the super rebirth counter
         const startButton = document.getElementById("startButton");
         const upgradesContainer = document.getElementById("upgradesContainer");
         const upgradesButton = document.getElementById("upgradesButton");
@@ -148,7 +148,8 @@
             money = 0;
             totalIncrement = 0;
             rebirthCount = 0;
-            superRebirthCount = 0;
+            superRebirthCount = 0; // Reset super rebirth count
+            updateSuperRebirthCount(); // Update super rebirth display
             startEarningMoney();
             initializeUpgrades();
             updateRebirthButtonVisibility();
@@ -304,8 +305,8 @@
         });
 
         superRebirthButton.addEventListener("click", () => {
-            superRebirthCount += 1;
-            superRebirthCounterDisplay.innerHTML = `Super Rebirths: ${superRebirthCount}`;
+            superRebirthCount += 1; // Increase super rebirth count
+            updateSuperRebirthCount(); // Update display for super rebirths
             createStars();
 
             money = 0;
@@ -339,6 +340,11 @@
             });
             renderUpgrades(); // Refresh the upgrades display
         });
+
+        // Function to update the super rebirth count display
+        function updateSuperRebirthCount() {
+            superRebirthCounterDisplay.innerHTML = `Super Rebirths: ${superRebirthCount}`;
+        }
 
         startButton.addEventListener("click", startGame);
         updateMoneyDisplay();
