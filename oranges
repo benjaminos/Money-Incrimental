@@ -19,7 +19,7 @@
             font-size: 20px;
             margin: 10px 0;
         }
-        #startButton, #upgradesButton, #rebirthButton, #superRebirthButton {
+        #startButton, #upgradesButton, #rebirthButton, #superRebirthButton, #autoBuyAllButton {
             margin: 10px;
             padding: 10px 20px;
             font-size: 16px;
@@ -72,6 +72,7 @@
     <button id="upgradesButton">Toggle Upgrades</button>
     <button id="rebirthButton" style="display: none;">Rebirth</button>
     <button id="superRebirthButton" style="display: none;">Super Rebirth</button>
+    <button id="autoBuyAllButton" style="display: none;">Auto Buy All</button> <!-- Added Auto Buy All Button -->
 
     <div id="upgradesContainer">
         <h2>Upgrades</h2>
@@ -99,6 +100,7 @@
         const upgradeList = document.getElementById("upgradeList");
         const rebirthButton = document.getElementById("rebirthButton");
         const superRebirthButton = document.getElementById("superRebirthButton");
+        const autoBuyAllButton = document.getElementById("autoBuyAllButton"); // Reference to the Auto Buy All button
 
         const baseCost = 20; // Base cost for the first upgrade
 
@@ -141,6 +143,7 @@
         function startGame() {
             startButton.style.display = 'none';
             upgradesButton.style.display = 'block';
+            autoBuyAllButton.style.display = 'block'; // Show Auto Buy All button
 
             money = 0;
             totalIncrement = 0;
@@ -321,6 +324,20 @@
             startEarningMoney();
             initializeUpgrades(); // Reset upgrade costs
             superRebirthRequired *= 2;
+        });
+
+        // Event listener for the Auto Buy All button
+        autoBuyAllButton.addEventListener("click", () => {
+            // Toggle state
+            const allAutoBuy = upgrades.every(upgrade => upgrade.autoBuy);
+            upgrades.forEach(upgrade => {
+                upgrade.autoBuy = !allAutoBuy; // Set all to the opposite of the current state
+                // Additionally, you might want to check for automatic purchasing right after enabling
+                if (upgrade.autoBuy) {
+                    checkAutomaticUpgrades();
+                }
+            });
+            renderUpgrades(); // Refresh the upgrades display
         });
 
         startButton.addEventListener("click", startGame);
