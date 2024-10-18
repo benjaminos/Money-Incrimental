@@ -104,7 +104,6 @@
         let upgrades = [];
         let rebirthMultiplier = 1;
         let rebirthCost = 1000000;
-        let superRebirthCost = 5; // Initial cost of super rebirth (as a count of rebirths)
         let superRebirthRequired = 5; // Initial requirement before super rebirths
 
         const moneyDisplay = document.getElementById("moneyDisplay");
@@ -121,7 +120,8 @@
         const autoBuyAllButton = document.getElementById("autoBuyAllButton");
 
         const baseCost = 20; // Base cost for the first upgrade
-
+        
+        // Full list of upgrade configuration with original costs stored
         const upgradeConfig = [
             { name: "Basic Upgrade", cost: baseCost },
             { name: "Advanced Upgrade", cost: baseCost * 3 },
@@ -197,7 +197,7 @@
             const upgrade = {
                 name: name,
                 cost: cost,
-                originalCost: cost, // Store the original cost for reset
+                originalCost: cost, // Store the original cost for rebirth
                 increment: calculateIncrement(cost),
                 purchased: 0,
                 autoBuy: false
@@ -235,7 +235,7 @@
                 upgrade.purchased += 1;
                 totalIncrement += upgrade.increment;
 
-                // Increase the cost for the next purchase
+                // Increase cost for the next purchase
                 upgrade.cost = Math.floor(upgrade.cost * 1.5);
                 
                 updateMoneyDisplay();
@@ -317,44 +317,53 @@
             rebirthCounterDisplay.innerHTML = `Rebirths: ${rebirthCount}`;
             createStars();
 
+            // Reset money and increment
             money = 0;
             totalIncrement = 0;
+
+            // Reset all upgrades to original state
             upgrades.forEach(upgrade => {
-                upgrade.increment *= 2; // Doubling increment on rebirth
-                upgrade.cost = upgrade.originalCost; // Resetting cost to original on rebirth
+                upgrade.cost = upgrade.originalCost; // Resetting cost
+                upgrade.purchased = 0; // Reset purchase count
+                upgrade.increment = calculateIncrement(upgrade.originalCost); // Reset increment based on original cost
             });
-            upgradeList.innerHTML = '';
+
             updateMoneyDisplay();
             clearInterval(earningInterval);
-            baseEarningRate *= 2;
+            baseEarningRate *= 2; // Double base earning rate
             startEarningMoney();
-            rebirthCost *= 2; // Increase rebirth cost for the next rebirth
+            rebirthCost *= 2; // Increase rebirth cost
             updateCostDisplays(); // Update cost displays after rebirth
+            renderUpgrades(); // Update the displayed upgrades after reset
         });
 
         superRebirthButton.addEventListener("click", () => {
             if (rebirthCount >= superRebirthRequired) {
                 superRebirthCount++; // Increase super rebirth count
-                updateSuperRebirthCount(); // Update the display for super rebirths
+                updateSuperRebirthCount(); // Update display for super rebirths
                 createStars();
 
+                // Reset money and increment
                 money = 0;
                 totalIncrement = 0;
+
+                // Reset all upgrades to original state
                 upgrades.forEach(upgrade => {
+                    upgrade.cost = upgrade.originalCost; // Resetting cost to original
                     upgrade.increment *= 10; // Increase increment significantly on super rebirth
-                    upgrade.cost = upgrade.originalCost; // Resetting cost to original on super rebirth
+                    upgrade.purchased = 0; // Reset purchase count for re-purchase if desired
                 });
-                upgradeList.innerHTML = '';
+
                 updateMoneyDisplay();
                 clearInterval(earningInterval);
                 rebirthCount = 0; 
-                rebirthMultiplier *= 2; 
                 rebirthCounterDisplay.innerHTML = `Rebirths: ${rebirthCount}`;
-                baseEarningRate *= 10;
+                baseEarningRate *= 10; // Greatly increase earning rate on super rebirth
 
                 // Adjust the super rebirth requirement
                 superRebirthRequired *= 2; // Double the requirement for the next super rebirth
-                updateCostDisplays(); // Update cost displays after super rebirth
+                updateCostDisplays(); // Update cost displays
+                renderUpgrades(); // Update the displayed upgrades after reset
             } else {
                 alert(`You need ${superRebirthRequired} rebirths to perform a super rebirth.`);
             }
@@ -363,12 +372,12 @@
         autoBuyAllButton.addEventListener("click", () => {
             const allAutoBuy = upgrades.every(upgrade => upgrade.autoBuy);
             upgrades.forEach(upgrade => {
-                upgrade.autoBuy = !allAutoBuy; // Set all to the opposite of the current state
+                upgrade.autoBuy = !allAutoBuy; // Toggle auto-buy for all upgrades
                 if (upgrade.autoBuy) {
-                    checkAutomaticUpgrades();
+                    checkAutomaticUpgrades(); // Check if any upgrades can be purchased automatically
                 }
             });
-            renderUpgrades(); // Refresh the upgrades display
+            renderUpgrades(); // Refresh the displayed upgrades
         });
 
         function updateSuperRebirthCount() {
