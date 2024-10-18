@@ -181,11 +181,16 @@
 
         function startEarningMoney() {
             earningInterval = setInterval(() => {
-                let totalEarningsPerSec = baseEarningRate + totalIncrement;
+                let totalEarningsPerSec = baseEarningRate + totalIncrement * getUpgradeMultiplier();
                 money += totalEarningsPerSec;
                 updateMoneyDisplay();
                 checkAutomaticUpgrades();
             }, 1000);
+        }
+
+        function getUpgradeMultiplier() {
+            // Increase increments based on rebirths and super rebirths
+            return 1 + (rebirthCount * 0.5) + (superRebirthCount * 1); // 50% per rebirth, 100% per super rebirth
         }
 
         function initializeUpgrades() {
@@ -197,7 +202,7 @@
             const upgrade = {
                 name: name,
                 cost: cost,
-                originalCost: cost, // Store the original cost for rebirth
+                originalCost: cost, // Store original cost for rebirth
                 increment: calculateIncrement(cost),
                 purchased: 0,
                 autoBuy: false
@@ -215,7 +220,7 @@
             upgrades.forEach((upgrade, index) => {
                 const upgradeDiv = document.createElement("div");
                 upgradeDiv.className = "upgrade";
-                upgradeDiv.innerHTML = `${upgrade.name}: +$${upgrade.increment.toFixed(2)}/s (Cost: ${formatMoney(upgrade.cost)}) 
+                upgradeDiv.innerHTML = `${upgrade.name}: +$${(upgrade.increment * getUpgradeMultiplier()).toFixed(2)}/s (Cost: ${formatMoney(upgrade.cost)}) 
                                         <button onclick="buyUpgrade(${index})">Buy</button> 
                                         <label>
                                             <input type="checkbox" 
@@ -233,7 +238,7 @@
             if (money >= upgrade.cost) {
                 money -= upgrade.cost;
                 upgrade.purchased += 1;
-                totalIncrement += upgrade.increment;
+                totalIncrement += upgrade.increment * getUpgradeMultiplier(); // Apply multiplier when adding increment
 
                 // Increase cost for the next purchase
                 upgrade.cost = Math.floor(upgrade.cost * 1.5);
