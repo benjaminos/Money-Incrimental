@@ -15,6 +15,11 @@
             font-size: 24px;
             margin: 20px 0;
         }
+        #earningsDisplay {
+            font-size: 20px; /* Added styles for earnings per second */
+            color: green;
+            margin: 10px 0; /* Space between earnings display and cash display */
+        }
         #rebirthCounter, #superRebirthCounter {
             font-size: 20px;
             margin: 5px 0;
@@ -73,6 +78,7 @@
 </head>
 <body>
     <h1 id="gameTitle">Money Incremental Game</h1>
+    <div id="earningsDisplay">Earnings: $0.00/s</div>  <!-- New Line for Earnings Display -->
     <div id="moneyDisplay">$0.00</div>
 
     <div id="rebirthCounter">Rebirths: 0</div>
@@ -102,11 +108,11 @@
         let superRebirthCount = 0;
         let baseEarningRate = 1;
         let upgrades = [];
-        let rebirthMultiplier = 1;
         let rebirthCost = 1000000;
         let superRebirthRequired = 5; // Initial requirement before super rebirths
 
         const moneyDisplay = document.getElementById("moneyDisplay");
+        const earningsDisplay = document.getElementById("earningsDisplay"); // Reference to earnings display
         const rebirthCounterDisplay = document.getElementById("rebirthCounter");
         const superRebirthCounterDisplay = document.getElementById("superRebirthCounter");
         const rebirthCostDisplay = document.getElementById("rebirthCostDisplay");
@@ -171,7 +177,6 @@
             totalIncrement = 0;
             rebirthCount = 0;
             superRebirthCount = 0; // Reset super rebirth count
-            updateSuperRebirthCount();
             startEarningMoney();
             initializeUpgrades();
             updateRebirthButtonVisibility();
@@ -181,16 +186,18 @@
 
         function startEarningMoney() {
             earningInterval = setInterval(() => {
-                let totalEarningsPerSec = baseEarningRate + totalIncrement * getUpgradeMultiplier();
+                let totalEarningsPerSec = baseEarningRate + totalIncrement;
                 money += totalEarningsPerSec;
+
+                // Update displays for money and earnings
                 updateMoneyDisplay();
+                updateEarningsDisplay(totalEarningsPerSec); // Update the earnings display
                 checkAutomaticUpgrades();
             }, 1000);
         }
 
-        function getUpgradeMultiplier() {
-            // Increase increments based on rebirths and super rebirths
-            return 1 + (rebirthCount * 0.5) + (superRebirthCount * 1); // 50% per rebirth, 100% per super rebirth
+        function updateEarningsDisplay(totalEarningsPerSec) {
+            earningsDisplay.innerHTML = `Earnings: $${totalEarningsPerSec.toFixed(2)}/s`; // Show earnings per second
         }
 
         function initializeUpgrades() {
@@ -220,7 +227,7 @@
             upgrades.forEach((upgrade, index) => {
                 const upgradeDiv = document.createElement("div");
                 upgradeDiv.className = "upgrade";
-                upgradeDiv.innerHTML = `${upgrade.name}: +$${(upgrade.increment * getUpgradeMultiplier()).toFixed(2)}/s (Cost: ${formatMoney(upgrade.cost)}) 
+                upgradeDiv.innerHTML = `${upgrade.name}: +$${(upgrade.increment).toFixed(2)}/s (Cost: ${formatMoney(upgrade.cost)}) 
                                         <button onclick="buyUpgrade(${index})">Buy</button> 
                                         <label>
                                             <input type="checkbox" 
@@ -238,7 +245,7 @@
             if (money >= upgrade.cost) {
                 money -= upgrade.cost;
                 upgrade.purchased += 1;
-                totalIncrement += upgrade.increment * getUpgradeMultiplier(); // Apply multiplier when adding increment
+                totalIncrement += upgrade.increment; // Add increment, does not consider multiplier now
 
                 // Increase cost for the next purchase
                 upgrade.cost = Math.floor(upgrade.cost * 1.5);
@@ -318,7 +325,7 @@
         }
 
         rebirthButton.addEventListener("click", () => {
-            rebirthCount += rebirthMultiplier; 
+            rebirthCount++; 
             rebirthCounterDisplay.innerHTML = `Rebirths: ${rebirthCount}`;
             createStars();
 
@@ -330,7 +337,6 @@
             upgrades.forEach(upgrade => {
                 upgrade.cost = upgrade.originalCost; // Resetting cost
                 upgrade.purchased = 0; // Reset purchase count
-                upgrade.increment = calculateIncrement(upgrade.originalCost); // Reset increment based on original cost
             });
 
             updateMoneyDisplay();
@@ -348,27 +354,30 @@
                 updateSuperRebirthCount(); // Update display for super rebirths
                 createStars();
 
-                // Reset money and increment
-                money = 0;
-                totalIncrement = 0;
+                // Reset all necessary values
+                money = 0; // Reset money to zero if required, or keep it based on your game design
+                totalIncrement = 0; // Reset total increments on super rebirth
+                baseEarningRate = 1; // Reset base earning rate
+                
+                // Reset rebirth cost to initial value
+                rebirthCost = 1000000;
 
                 // Reset all upgrades to original state
                 upgrades.forEach(upgrade => {
                     upgrade.cost = upgrade.originalCost; // Resetting cost to original
-                    upgrade.increment *= 10; // Increase increment significantly on super rebirth
                     upgrade.purchased = 0; // Reset purchase count for re-purchase if desired
+                    upgrade.increment = calculateIncrement(upgrade.originalCost); // Reset increment based on original cost
                 });
 
                 updateMoneyDisplay();
                 clearInterval(earningInterval);
                 rebirthCount = 0; 
                 rebirthCounterDisplay.innerHTML = `Rebirths: ${rebirthCount}`;
-                baseEarningRate *= 10; // Greatly increase earning rate on super rebirth
-
-                // Adjust the super rebirth requirement
+                // Note: You can decide if you want to keep bonus increments from previous rebirths or not here
                 superRebirthRequired *= 2; // Double the requirement for the next super rebirth
                 updateCostDisplays(); // Update cost displays
                 renderUpgrades(); // Update the displayed upgrades after reset
+                startEarningMoney(); // Start earning money continuously after super rebirth
             } else {
                 alert(`You need ${superRebirthRequired} rebirths to perform a super rebirth.`);
             }
