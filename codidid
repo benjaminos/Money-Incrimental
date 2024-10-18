@@ -193,7 +193,7 @@
             upgrades.forEach((upgrade, index) => {
                 const upgradeDiv = document.createElement("div");
                 upgradeDiv.className = "upgrade";
-                upgradeDiv.innerHTML = `${upgrade.name}: +$${upgrade.increment.toFixed(2)}/s (Cost: $${upgrade.cost}) 
+                upgradeDiv.innerHTML = `${upgrade.name}: +$${upgrade.increment.toFixed(2)}/s (Cost: ${formatMoney(upgrade.cost)}) 
                                         <button onclick="buyUpgrade(${index})">Buy</button> 
                                         <label>
                                             <input type="checkbox" 
@@ -248,8 +248,13 @@
                 'none';
         });
 
+        // Function to format money with commas
+        function formatMoney(value) {
+            return '$' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
         function updateMoneyDisplay() {
-            moneyDisplay.innerHTML = `$${money.toFixed(2)}`;
+            moneyDisplay.innerHTML = formatMoney(money);
             updateRebirthButtonVisibility();
             updateSuperRebirthButtonVisibility();
         }
@@ -301,7 +306,7 @@
             baseEarningRate *= 2;
             startEarningMoney();
             initializeUpgrades(); // Reset upgrade costs
-            rebirthCost *= 2;
+            rebirthCost *= 2; // Increase rebirth cost for the next rebirth
         });
 
         superRebirthButton.addEventListener("click", () => {
@@ -322,6 +327,10 @@
             rebirthMultiplier *= 2;
             rebirthCounterDisplay.innerHTML = `Rebirths: ${rebirthCount}`;
             baseEarningRate *= 10;
+
+            // Reset rebirth cost back to 1000000 on super rebirth
+            rebirthCost = 1000000;
+
             startEarningMoney();
             initializeUpgrades(); // Reset upgrade costs
             superRebirthRequired *= 2;
